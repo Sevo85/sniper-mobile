@@ -39,6 +39,7 @@ export default function ScheduleScreen({
 }) {
   const [selectedDay, setSelectedDay] = useState(0); // Sunday
   const [selectedTime, setSelectedTime] = useState('12:00');
+  const [selectedStrategy, setSelectedStrategy] = useState('dynamic');
   const [editingIndex, setEditingIndex] = useState(null);
 
   const handleAdd = () => {
@@ -52,7 +53,7 @@ export default function ScheduleScreen({
       dayOfWeek: selectedDay,
       time: selectedTime,
       chatUrl: config.chatUrl,
-      strategy: config.strategy || 'dynamic',
+      strategy: selectedStrategy,
       enabled: true,
       nextRun: nextRun.toISOString(),
     };
@@ -89,6 +90,7 @@ export default function ScheduleScreen({
     const schedule = schedules[index];
     setSelectedDay(schedule.dayOfWeek);
     setSelectedTime(schedule.time);
+    setSelectedStrategy(schedule.strategy || 'dynamic');
     setEditingIndex(index);
   };
 
@@ -96,6 +98,7 @@ export default function ScheduleScreen({
     setEditingIndex(null);
     setSelectedDay(0);
     setSelectedTime('12:00');
+    setSelectedStrategy('dynamic');
   };
 
   const getDayLabel = (dayValue) => DAYS.find(d => d.value === dayValue)?.label || '';
@@ -176,6 +179,41 @@ export default function ScheduleScreen({
             step="60"
           />
           <span className="form-hint">Snajper obudzi się 1 min wcześniej i przygotuje WebView</span>
+        </div>
+
+        {/* Strategy picker */}
+        <div className="form-group">
+          <label className="form-label">Strategia snajpera</label>
+          <div style={{ display: 'flex', background: 'var(--bg-input)', borderRadius: 'var(--radius-md)', padding: '2px', border: '1px solid var(--border)' }}>
+            <button
+              type="button"
+              className={`strategy-option ${selectedStrategy === 'fixed' ? 'strategy-option--active' : ''}`}
+              onClick={() => setSelectedStrategy('fixed')}
+            >
+              Stałe +1
+            </button>
+            <button
+              type="button"
+              className={`strategy-option ${selectedStrategy === 'dynamic' ? 'strategy-option--active' : ''}`}
+              onClick={() => setSelectedStrategy('dynamic')}
+            >
+              Dynamiczne (N+1)
+            </button>
+            <button
+              type="button"
+              className={`strategy-option ${selectedStrategy === 'wait' ? 'strategy-option--active' : ''}`}
+              onClick={() => setSelectedStrategy('wait')}
+            >
+              Czekaj na start (2-5)
+            </button>
+          </div>
+          <span className="form-hint">
+            {selectedStrategy === 'fixed'
+              ? 'Zawsze wysyła "+1" niezależnie od ostatniego numeru'
+              : selectedStrategy === 'wait'
+              ? 'Czeka na innych (zapisze od pozycji 2 do 5, by nie być pierwszym)'
+              : 'Znajduje ostatni numer na czacie i wysyła o 1 więcej'}
+          </span>
         </div>
 
         {/* Chat URL reminder */}
