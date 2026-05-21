@@ -6,7 +6,7 @@ import StatusIndicator from './components/StatusIndicator';
 import CountdownTimer from './components/CountdownTimer';
 import LiveLogs from './components/LiveLogs';
 import ConfigScreen from './components/ConfigScreen';
-import ScheduleScreen, { getNextOccurrence } from './components/ScheduleScreen';
+import { getNextOccurrence } from './utils/dateUtils';
 
 // Services
 import sniperService, { SniperService } from './services/SniperService';
@@ -17,7 +17,6 @@ import webViewBridge from './services/SniperWebViewBridge';
 const TABS = {
   DASHBOARD: 'dashboard',
   CONFIG: 'config',
-  SCHEDULE: 'schedule',
 };
 
 const PermissionBanner = ({ permissions, onRequest }) => {
@@ -394,17 +393,10 @@ function App() {
           </button>
           <button
             type="button"
-            className={`nav-tab ${activeTab === TABS.SCHEDULE ? 'nav-tab--active' : ''}`}
-            onClick={() => setActiveTab(TABS.SCHEDULE)}
-          >
-            <span>📅</span> Cykliczny
-          </button>
-          <button
-            type="button"
             className={`nav-tab ${activeTab === TABS.CONFIG ? 'nav-tab--active' : ''}`}
             onClick={() => setActiveTab(TABS.CONFIG)}
           >
-            <span>⚙️</span> Ustawienia
+            <span>📅</span> Planer
           </button>
         </nav>
       </div>
@@ -481,15 +473,6 @@ function App() {
             {/* Live Logs */}
             <LiveLogs logs={logs} onClear={handleClearLogs} />
           </div>
-        ) : activeTab === TABS.SCHEDULE ? (
-          <ScheduleScreen
-            key="schedule"
-            schedules={schedules}
-            onSchedulesChange={handleSchedulesChange}
-            config={config}
-            isLoggedIn={isLoggedIn}
-            onLogin={handleLogin}
-          />
         ) : (
           <ConfigScreen
             key="config"
@@ -501,6 +484,8 @@ function App() {
             isLoggedIn={isLoggedIn}
             onLogin={handleLogin}
             onLog={addLog}
+            schedules={schedules}
+            onSchedulesChange={handleSchedulesChange}
           />
         )}
       </main>
