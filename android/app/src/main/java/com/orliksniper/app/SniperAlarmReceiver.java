@@ -78,6 +78,7 @@ public class SniperAlarmReceiver extends BroadcastReceiver {
         serviceIntent.putExtra("targetTime", intent.getStringExtra("targetTime"));
         serviceIntent.putExtra("strategy", intent.getStringExtra("strategy"));
         serviceIntent.putExtra("messengerPin", intent.getStringExtra("messengerPin"));
+        serviceIntent.putExtra("wakeScreen", intent.getBooleanExtra("wakeScreen", true));
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

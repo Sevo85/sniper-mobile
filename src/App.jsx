@@ -74,6 +74,7 @@ function App() {
     targetTime: null,
     strategy: 'dynamic',
     messengerPin: '',
+    wakeScreen: true,
   });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [schedules, setSchedules] = useState([]);
@@ -207,7 +208,8 @@ function App() {
           targetTime: nextRunDate,
           chatUrl: nearest.chatUrl,
           strategy: nearest.strategy,
-          messengerPin: config.messengerPin
+          messengerPin: config.messengerPin,
+          wakeScreen: config.wakeScreen !== false
         }).catch(err => addLog(`Błąd alarmu natywnego: ${err.message}`, 'error'));
 
         // Set JS alarm ONLY for UI logging and schedule rotation.
@@ -272,7 +274,8 @@ function App() {
       targetTime: targetTime,
       chatUrl: currentChatUrl,
       strategy: currentStrategy,
-      messengerPin: config.messengerPin
+      messengerPin: config.messengerPin,
+      wakeScreen: config.wakeScreen !== false
     }).catch(err => addLog(`Błąd alarmu natywnego: ${err.message}`, 'error'));
 
     // JS alarm is ONLY for UI logging — native alarm handles actual workflow

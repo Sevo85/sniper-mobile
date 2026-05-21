@@ -196,7 +196,7 @@ class SniperWebViewBridge {
    * @param {string} options.strategy - Sniper strategy
    * @param {string} options.messengerPin - Optional PIN
    */
-  async scheduleNativeAlarm({ targetTime, chatUrl, strategy, messengerPin }) {
+  async scheduleNativeAlarm({ targetTime, chatUrl, strategy, messengerPin, wakeScreen }) {
     if (!this.isNative) {
       console.log('[Bridge] Dev mode: simulated native alarm for', targetTime);
       return { success: true };
@@ -205,7 +205,8 @@ class SniperWebViewBridge {
       targetTime: targetTime instanceof Date ? targetTime.toISOString() : targetTime,
       chatUrl: this._formatChatUrl(chatUrl),
       strategy,
-      messengerPin: messengerPin || ''
+      messengerPin: messengerPin || '',
+      wakeScreen: wakeScreen !== false
     });
   }
 

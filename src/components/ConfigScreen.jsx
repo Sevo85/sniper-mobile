@@ -31,6 +31,7 @@ export default function ConfigScreen({
   const [targetTime, setTargetTime] = useState(config?.targetTime || '');
   const [strategy, setStrategy] = useState(config?.strategy || 'dynamic');
   const [messengerPin, setMessengerPin] = useState(config?.messengerPin || '');
+  const [wakeScreen, setWakeScreen] = useState(config?.wakeScreen !== false);
 
   // Cyclic schedule form states
   const [isCyclic, setIsCyclic] = useState(false);
@@ -56,6 +57,7 @@ export default function ConfigScreen({
       }
       if (config.strategy) setStrategy(config.strategy);
       if (config.messengerPin) setMessengerPin(config.messengerPin);
+      if (config.wakeScreen !== undefined) setWakeScreen(config.wakeScreen !== false);
     }
   }, [config]);
 
@@ -64,7 +66,8 @@ export default function ConfigScreen({
       chatUrl: updates.chatUrl !== undefined ? updates.chatUrl : chatUrl,
       strategy: updates.strategy !== undefined ? updates.strategy : strategy,
       messengerPin: updates.messengerPin !== undefined ? updates.messengerPin : messengerPin,
-      targetTime: updates.targetTime !== undefined ? updates.targetTime : (targetTime ? new Date(targetTime).toISOString() : null)
+      targetTime: updates.targetTime !== undefined ? updates.targetTime : (targetTime ? new Date(targetTime).toISOString() : null),
+      wakeScreen: updates.wakeScreen !== undefined ? updates.wakeScreen : wakeScreen
     };
     onConfigChange(newConfig);
   };
@@ -75,6 +78,7 @@ export default function ConfigScreen({
       targetTime: targetTime ? new Date(targetTime).toISOString() : null,
       strategy,
       messengerPin,
+      wakeScreen,
     };
     onConfigChange(newConfig);
   };
@@ -351,6 +355,29 @@ export default function ConfigScreen({
       <div className="glass-card config__section">
         <div className="config__section-title">
           <span>⚙️</span> Uruchamianie snajpera
+        </div>
+
+        {/* Wake screen toggle switch */}
+        <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-sm) 0', borderBottom: '1px solid var(--border)', marginBottom: 'var(--space-sm)' }}>
+          <div>
+            <label className="form-label" style={{ marginBottom: 0 }}>Wybudzanie ekranu</label>
+            <span className="form-hint">Włącz ekran i odblokuj telefon podczas strzału</span>
+          </div>
+          <button
+            type="button"
+            className={`toggle-switch ${wakeScreen !== false ? 'toggle-switch--on' : ''}`}
+            onClick={() => {
+              if (!isArmed) {
+                const newValue = wakeScreen === false;
+                setWakeScreen(newValue);
+                updateParentConfig({ wakeScreen: newValue });
+              }
+            }}
+            disabled={isArmed}
+            aria-label="Wybudzanie ekranu"
+          >
+            <div className="toggle-switch__knob" />
+          </button>
         </div>
 
         {/* Cyclic mode toggle switch */}

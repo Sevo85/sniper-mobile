@@ -158,6 +158,7 @@ public class SniperWebViewPlugin extends Plugin {
         String chatUrl = call.getString("chatUrl");
         String strategy = call.getString("strategy", "dynamic");
         String messengerPin = call.getString("messengerPin", "");
+        boolean wakeScreen = call.getBoolean("wakeScreen", true);
         
         if (targetTime == null || chatUrl == null) {
             call.reject("Missing required parameters");
@@ -175,6 +176,7 @@ public class SniperWebViewPlugin extends Plugin {
             intent.putExtra("targetTime", targetTime);
             intent.putExtra("strategy", strategy);
             intent.putExtra("messengerPin", messengerPin);
+            intent.putExtra("wakeScreen", wakeScreen);
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 
             PendingIntent pendingIntent = PendingIntent.getBroadcast(
@@ -226,6 +228,10 @@ public class SniperWebViewPlugin extends Plugin {
                 // We use false to keep it invisible in the background. 
                 // createWebView handles View.INVISIBLE internally to maintain DOM capabilities.
                 createWebView(chatUrl, false);
+                if (sniperWebView != null) {
+                    sniperWebView.onResume();
+                    sniperWebView.resumeTimers();
+                }
             } catch (Exception e) {
                 Log.e(TAG, "Native workflow failed", e);
             }
@@ -908,6 +914,10 @@ public class SniperWebViewPlugin extends Plugin {
 
         // Background color
         webView.setBackgroundColor(0xFF000000);
+
+        // Resume timers & web view state for background processing
+        webView.onResume();
+        webView.resumeTimers();
     }
 
     /**

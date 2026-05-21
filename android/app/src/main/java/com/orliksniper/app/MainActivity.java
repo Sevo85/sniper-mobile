@@ -16,16 +16,8 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(SniperWebViewPlugin.class);
         super.onCreate(savedInstanceState);
 
-        // Allow showing on lock screen (for background wake-up)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true);
-            setTurnScreenOn(true);
-        } else {
-            getWindow().addFlags(
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-            );
-        }
+        boolean wakeScreen = getIntent() == null || getIntent().getBooleanExtra("wakeScreen", true);
+        configureWindowFlags(wakeScreen);
 
         // Handle auto_snipe intent from ForegroundService when app was killed
         handleAutoSnipeIntent(getIntent());
@@ -38,6 +30,25 @@ public class MainActivity extends BridgeActivity {
 
         // Handle auto_snipe intent when Activity already exists
         handleAutoSnipeIntent(intent);
+    }
+
+    private void configureWindowFlags(boolean wakeScreen) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true);
+            setTurnScreenOn(wakeScreen);
+        } else {
+            int flags = WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+            if (wakeScreen) {
+                flags |= WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON;
+            }
+            getWindow().addFlags(flags);
+        }
+
+        if (wakeScreen) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     /**
@@ -54,10 +65,9 @@ public class MainActivity extends BridgeActivity {
         String targetTime = intent.getStringExtra("targetTime");
         String strategy = intent.getStringExtra("strategy");
         String messengerPin = intent.getStringExtra("messengerPin");
+        boolean wakeScreen = intent.getBooleanExtra("wakeScreen", true);
 
-        // Keep the screen ON while the sniper is preparing and waiting for the target time.
-        // This prevents the OS from suspending the WebView and JS timers.
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        configureWindowFlags(wakeScreen);
 
         // Clear the flag so we don't re-trigger on config change
         intent.removeExtra("auto_snipe");
