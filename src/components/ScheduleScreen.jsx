@@ -298,7 +298,7 @@ export default function ScheduleScreen({
                 </div>
 
                 <div className="schedule-item__strategy">
-                  🧠 {schedule.strategy === 'fixed' ? 'Stałe +1' : 'Dynamiczne (N+1)'}
+                  🧠 {schedule.strategy === 'fixed' ? 'Stałe +1' : (schedule.strategy === 'wait' ? 'Czekaj na start (losowo 2-5)' : 'Dynamiczne (N+1)')}
                 </div>
               </div>
             ))}

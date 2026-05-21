@@ -71,6 +71,35 @@
     return true;
   }
 
+  function isPastDaySeparator(text) {
+    var t = text.trim();
+    var lower = t.toLowerCase();
+    
+    // A numeric date pattern (e.g. "11.05.2026" or "11/05" or "11.05") is a past day
+    if (/\b\d{1,2}[\.\/]\d{1,2}([\.\/]\d{2,4})?\b/.test(t)) return true;
+    
+    var pastDayWords = [
+      'styczeń', 'stycznia', 'sty', 'luty', 'lutego', 'lut', 'marzec', 'marca', 'mar',
+      'kwiecień', 'kwietnia', 'kwi', 'maj', 'maja', 'czerwiec', 'czerwca', 'cze',
+      'lipiec', 'lipca', 'lip', 'sierpień', 'sierpnia', 'sie', 'wrzesień', 'września', 'wrz',
+      'październik', 'października', 'paź', 'listopad', 'listopada', 'lis', 'grudzień', 'grudnia', 'gru',
+      'poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota', 'niedziela', 'pon', 'wt', 'śr', 'czw', 'pią', 'sob', 'nie',
+      'january', 'jan', 'february', 'feb', 'march', 'april', 'apr', 'may', 'june', 'jun',
+      'july', 'jul', 'august', 'aug', 'september', 'sep', 'october', 'oct', 'november', 'nov', 'december', 'dec',
+      'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun',
+      'yesterday', 'wczoraj'
+    ];
+    
+    var tokens = lower.split(/[^a-z0-9ąęćłńóśźż]+/);
+    for (var i = 0; i < tokens.length; i++) {
+      if (pastDayWords.indexOf(tokens[i]) !== -1) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
   function findLastNumber() {
     var chatMain = document.querySelector('[role="main"]');
     if (!chatMain) return null;
@@ -86,6 +115,12 @@
       
       // Pomiń bardzo długie teksty (to raczej nie jest numeracja)
       if (text.length > 200 || text.length === 0) continue;
+      
+      // Stop scanning when hitting a past day separator to support weekly resets
+      if (isPastDaySeparator(text)) {
+        log('Koniec skanowania (starszy dzień/tydzień): "' + text + '"', 'info');
+        break;
+      }
       
       // Check if it is a valid game message (filter out timestamps, date headers, user names, etc.)
       if (!isGameMessage(text, messages[i])) continue;

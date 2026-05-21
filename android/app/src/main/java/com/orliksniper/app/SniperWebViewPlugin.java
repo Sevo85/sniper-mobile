@@ -528,7 +528,7 @@ public class SniperWebViewPlugin extends Plugin {
                     "  const targetTime = " + finalTargetTime + ";" +
                     "  const strategy = '" + strategy + "';" +
                     "  const messengerPin = '" + messengerPin + "';" +
-                    "  const targetPos = Math.floor(Math.random() * 5) + 1;" +
+                    "  const targetPos = Math.floor(Math.random() * 4) + 2;" +
                     "  " +
                     "  // Reset state for new run\n" +
                     "  if (window.__SNIPER_STATE__) {\n" +

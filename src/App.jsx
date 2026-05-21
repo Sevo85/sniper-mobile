@@ -58,6 +58,9 @@ const PermissionBanner = ({ permissions, onRequest }) => {
   );
 };
 
+const DAYS_LABELS = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
+const getDayLabel = (dayValue) => DAYS_LABELS[dayValue] || '';
+
 function App() {
   // --- State ---
   const [activeTab, setActiveTab] = useState(TABS.DASHBOARD);
@@ -241,9 +244,6 @@ function App() {
     }
   }, [schedules, status]); // Re-run when schedules or status change
 
-  const DAYS_LABELS = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
-  const getDayLabel = (dayValue) => DAYS_LABELS[dayValue] || '';
-
 
 
   const handleConfigChange = useCallback(async (newConfig) => {
@@ -286,10 +286,19 @@ function App() {
   }, [config, addLog]);
 
   const handleDisarm = useCallback(async () => {
+    if (activeSchedule) {
+      setSchedules(prev => {
+        const updated = prev.map(s => s.id === activeSchedule.id ? { ...s, enabled: false } : s);
+        storageService.saveSchedules(updated);
+        return updated;
+      });
+      addLog(`🔓 Harmonogram "${getDayLabel(activeSchedule.dayOfWeek)} ${activeSchedule.time}" wyłączony`, 'warn');
+    }
     sniperService.disarm();
     await alarmService.cancel();
+    webViewBridge.cancelNativeAlarm().catch(err => addLog(`Błąd anulowania alarmu: ${err.message}`, 'error'));
     addLog('🔓 Snajper rozbrojony', 'warn');
-  }, [addLog]);
+  }, [activeSchedule, addLog]);
 
   const handleLogin = useCallback(async () => {
     if (webViewBridge.isNative) {
@@ -403,7 +412,7 @@ function App() {
       {/* Content */}
       <main className="app__content">
         {activeTab === TABS.DASHBOARD ? (
-          <div className="screen-enter" key="dashboard">
+          <div className="screen-enter" key="dashboard" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
             {/* Status */}
             <div className="glass-card">
               <StatusIndicator status={status} />
@@ -446,8 +455,27 @@ function App() {
             {status === 'armed' && (
               <div className="info-bar" style={{ background: 'rgba(245, 158, 11, 0.1)', borderColor: 'rgba(245, 158, 11, 0.2)', color: 'var(--status-armed)' }}>
                 <span className="info-bar__icon">🧠</span>
-                Strategia: {config.strategy === 'fixed' ? 'Stałe +1' : 'Dynamiczna (N+1)'}
+                Strategia: {
+                  (activeSchedule ? activeSchedule.strategy : config.strategy) === 'fixed' 
+                    ? 'Stałe +1' 
+                    : (activeSchedule ? activeSchedule.strategy : config.strategy) === 'wait' 
+                      ? 'Czekaj na start (2-5)' 
+                      : 'Dynamiczna (N+1)'
+                }
               </div>
+            )}
+
+            {/* Quick Disarm Button */}
+            {status === 'armed' && (
+              <button
+                className="btn btn--danger"
+                onClick={handleDisarm}
+                type="button"
+                id="dashboard-disarm-button"
+                style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+              >
+                <span>🔓</span> Rozbrój snajpera
+              </button>
             )}
 
             {/* Live Logs */}

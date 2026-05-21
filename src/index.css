@@ -667,7 +667,7 @@ input[type="datetime-local"] {
   text-align: center;
 }
 
-.strategy-option:first-child {
+.strategy-option:not(:last-child) {
   border-right: 1px solid var(--border);
 }
 

@@ -170,10 +170,25 @@ export default function ConfigScreen({
           >
             Dynamiczne (N+1)
           </button>
+          <button
+            type="button"
+            className={`strategy-option ${strategy === 'wait' ? 'strategy-option--active' : ''}`}
+            onClick={() => {
+              if (!isArmed) {
+                setStrategy('wait');
+                onConfigChange({ ...config, chatUrl, strategy: 'wait' });
+              }
+            }}
+            disabled={isArmed}
+          >
+            Czekaj na start (2-5)
+          </button>
         </div>
         <span className="form-hint">
           {strategy === 'fixed'
             ? 'Zawsze wysyła "+1" niezależnie od ostatniego numeru'
+            : strategy === 'wait'
+            ? 'Czeka na innych (zapisze od pozycji 2 do 5, by nie być pierwszym)'
             : 'Znajduje ostatni numer na czacie i wysyła o 1 więcej'}
         </span>
       </div>
