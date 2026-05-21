@@ -359,7 +359,7 @@ export default function ConfigScreen({
 
         {/* Wake screen toggle switch */}
         <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-sm) 0', borderBottom: '1px solid var(--border)', marginBottom: 'var(--space-sm)' }}>
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, paddingRight: '10px' }}>
             <label className="form-label" style={{ marginBottom: 0 }}>Wybudzanie ekranu</label>
             <span className="form-hint">Włącz ekran i odblokuj telefon podczas strzału</span>
           </div>
@@ -382,7 +382,7 @@ export default function ConfigScreen({
 
         {/* Cyclic mode toggle switch */}
         <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-sm) 0' }}>
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, paddingRight: '10px' }}>
             <label className="form-label" style={{ marginBottom: 0 }}>Zadanie cykliczne</label>
             <span className="form-hint">Uruchamiaj automatycznie co tydzień</span>
           </div>

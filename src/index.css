@@ -1097,35 +1097,64 @@ input[type="datetime-local"] {
 
 /* Toggle switch */
 .toggle-switch {
-  width: 40px;
-  height: 22px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--border);
-  border-radius: 11px;
+  width: 46px;
+  height: 26px;
+  background: rgba(15, 20, 40, 0.8);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
   padding: 2px;
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: background var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
   position: relative;
+  outline: none;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-switch:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .toggle-switch--on {
-  background: var(--accent);
-  border-color: var(--accent);
-  box-shadow: 0 0 12px var(--accent-glow);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+  border-color: transparent;
+  box-shadow: 0 0 16px var(--accent-glow), 0 4px 10px rgba(0, 255, 136, 0.2);
+}
+
+.toggle-switch--on:hover:not(:disabled) {
+  box-shadow: 0 0 20px var(--accent-glow-strong), 0 4px 12px rgba(0, 255, 136, 0.3);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
 }
 
 .toggle-switch__knob {
-  width: 16px;
-  height: 16px;
-  background: white;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(to bottom, #ffffff, #e2e8f0);
   border-radius: 50%;
-  transition: transform var(--transition-base);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform var(--transition-spring), width var(--transition-fast);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 .toggle-switch--on .toggle-switch__knob {
-  transform: translateX(18px);
+  transform: translateX(20px);
   background: var(--bg-deep);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Active stretching effect */
+.toggle-switch:active:not(:disabled) .toggle-switch__knob {
+  width: 22px;
+}
+
+.toggle-switch--on:active:not(:disabled) .toggle-switch__knob {
+  transform: translateX(16px);
+}
+
+.toggle-switch:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* Active schedule indicator on dashboard */
