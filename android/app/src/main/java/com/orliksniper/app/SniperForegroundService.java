@@ -112,54 +112,42 @@ public class SniperForegroundService extends Service {
             String strategy = intent.getStringExtra("strategy");
             String messengerPin = intent.getStringExtra("messengerPin");
 
-            Log.i(TAG, "Triggering sniper workflow from service...");
-            SniperWebViewPlugin.logNative("Próba uruchomienia snajpera z usługi...", "info");
+            Log.i(TAG, "Triggering sniper workflow from service via MainActivity...");
+            SniperWebViewPlugin.logNative("Przygotowywanie aktywności snajpera...", "info");
             
-            SniperWebViewPlugin plugin = SniperWebViewPlugin.getInstance();
-            boolean pluginAlive = (plugin != null);
+            // Launch MainActivity to ensure the screen/window is created and resumed.
+            // This is required because Android freezes WebViews attached to stopped activities.
+            // By calling setShowWhenLocked(true) and setTurnScreenOn(false), the activity
+            // will resume behind the lockscreen without waking up the screen.
+            Intent launchIntent = new Intent(this, MainActivity.class);
+            launchIntent.addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP
+            );
             
-            if (pluginAlive) {
-                Log.i(TAG, "Plugin exists, triggering workflow directly from Service");
-                plugin.triggerWorkflowNative(chatUrl, targetTime, strategy, messengerPin);
-            } else {
-                Log.w(TAG, "Plugin is NULL (app was killed). Relying on MainActivity to initialize.");
-            }
+            launchIntent.putExtra("auto_snipe", true);
+            launchIntent.putExtra("chatUrl", chatUrl);
+            launchIntent.putExtra("targetTime", targetTime);
+            launchIntent.putExtra("strategy", strategy);
+            launchIntent.putExtra("messengerPin", messengerPin);
+            launchIntent.putExtra("wakeScreen", wakeScreen);
 
-            boolean shouldStartActivity = true;
-            if (!wakeScreen && pluginAlive) {
-                shouldStartActivity = false;
-            }
-
-            if (shouldStartActivity) {
-                // Launch MainActivity to ensure the screen turns on (if allowed) or to initialize Capacitor (if killed)
-                Intent launchIntent = new Intent(this, MainActivity.class);
-                launchIntent.addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                    | Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                );
+            try {
+                startActivity(launchIntent);
+                SniperWebViewPlugin.logNative("Budzę aplikację w tle (MainActivity)...", "info");
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to start MainActivity from background", e);
+                SniperWebViewPlugin.logNative("BŁĄD: Nie udało się uruchomić Activity: " + e.getMessage(), "error");
                 
-                // Only tell MainActivity to trigger the workflow if we didn't do it here
-                if (!pluginAlive) {
-                    launchIntent.putExtra("auto_snipe", true);
-                    launchIntent.putExtra("chatUrl", chatUrl);
-                    launchIntent.putExtra("targetTime", targetTime);
-                    launchIntent.putExtra("strategy", strategy);
-                    launchIntent.putExtra("messengerPin", messengerPin);
+                // Fallback: If starting activity fails (e.g. background activity restrictions),
+                // try to run directly if plugin is alive.
+                SniperWebViewPlugin plugin = SniperWebViewPlugin.getInstance();
+                if (plugin != null) {
+                    Log.w(TAG, "Fallback: triggering workflow directly from Service");
+                    plugin.triggerWorkflowNative(chatUrl, targetTime, strategy, messengerPin);
                 }
-                launchIntent.putExtra("wakeScreen", wakeScreen);
-
-                try {
-                    startActivity(launchIntent);
-                    SniperWebViewPlugin.logNative("Budzę aplikację (MainActivity)...", "info");
-                } catch (Exception e) {
-                    Log.e(TAG, "Failed to start MainActivity from background", e);
-                    SniperWebViewPlugin.logNative("BŁĄD: Nie udało się uruchomić Activity: " + e.getMessage(), "error");
-                }
-            } else {
-                Log.i(TAG, "wakeScreen is false and plugin is alive. Skipping MainActivity start.");
-                SniperWebViewPlugin.logNative("Strzał całkowicie w tle — pomijam aktywację okna", "info");
             }
         }
 
